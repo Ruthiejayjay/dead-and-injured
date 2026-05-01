@@ -60,7 +60,7 @@
 <script setup>
 import { ref } from "vue";
 import { Link } from "@inertiajs/vue3";
-import HowToPlayModal from "./Components/HowToPlayModal.vue";
+import HowToPlayModal from "@/Components/HowToPlayModal.vue";
 import logoImage from "/public/images/logo.png";
 
 const showModal = ref(false);

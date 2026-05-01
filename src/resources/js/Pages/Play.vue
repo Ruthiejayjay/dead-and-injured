@@ -18,7 +18,7 @@
             </div>
 
             <!-- New Game -->
-            <div class="bg-[#f0ede4] rounded-2xl border-4 border-[#1a3a4a] p-5 sm:p-6 md:p-8 space-y-3 sm:space-y-4">
+            <div class="bg-[#f0ede4] rounded-2xl border-2 border-[#1a3a4a] p-5 sm:p-6 md:p-8 space-y-3 sm:space-y-4">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#0d7a6b] flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@
             </div>
 
             <!-- Join Game -->
-            <div class="bg-[#f0ede4] rounded-2xl border-4 border-[#8b1a2f] p-5 sm:p-6 md:p-8 space-y-3 sm:space-y-4">
+            <div class="bg-[#f0ede4] rounded-2xl border-2 border-[#8b1a2f] p-5 sm:p-6 md:p-8 space-y-3 sm:space-y-4 opacity-50">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#8b1a2f] flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
