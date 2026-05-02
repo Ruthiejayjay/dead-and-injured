@@ -5,7 +5,7 @@
         <div class="w-full max-w-md space-y-4 sm:space-y-6 relative">
             <!-- Header Controls -->
             <div class="flex items-center justify-between gap-2">
-                <BackLink href="/game/new" />
+                <BackLink href="/play" />
                 <TimerDisplay
                     :elapsed-ms="elapsedMs"
                     class="text-xs sm:text-sm"

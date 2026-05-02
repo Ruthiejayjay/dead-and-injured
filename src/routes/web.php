@@ -11,10 +11,6 @@ Route::get('/play', function () {
     return Inertia::render('Play');
 });
 
-Route::get('/game/new', function () {
-    return Inertia::render('Game/New');
-});
-
 Route::get('/game/solo', function () {
     return Inertia::render('Game/Solo');
 });
