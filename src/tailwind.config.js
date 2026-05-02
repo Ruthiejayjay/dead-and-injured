@@ -1,3 +1,5 @@
+import { h } from "vue";
+
 export default {
     content: [
         "./resources/**/*.blade.php",
@@ -5,7 +7,13 @@ export default {
         "./resources/**/*.vue",
     ],
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                hanuman: ["Hanuman", "serif"],
+                lora: ["Lora", "serif"],
+                montserrat: ["Montserrat", "sans-serif"],
+            },
+        },
     },
     plugins: [],
 };

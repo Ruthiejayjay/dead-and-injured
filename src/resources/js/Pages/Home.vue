@@ -14,7 +14,7 @@
                 />
                 <div class="text-center">
                     <h1
-                        class="text-4xl font-black tracking-widest text-[#1a3a4a] uppercase"
+                        class="font-lora text-4xl font-black text-[#1a3a4a] uppercase"
                     >
                         Dead <span class="text-[#8b1a2f]">&</span> Injured
                     </h1>
@@ -39,7 +39,7 @@
                         stroke-linecap="round"
                     />
                 </svg> -->
-                <span class="underline underline-offset-2 decoration-dotted"
+                <span class="font-montserrat underline underline-offset-2 decoration-dotted"
                     >How To Play</span
                 >
             </button>
@@ -48,7 +48,7 @@
             <div class="flex flex-col gap-4 w-full">
                 <Link
                     href="/play"
-                    class="w-full py-4 rounded-full bg-[#0d7a6b] hover:bg-[#0a6459] text-white text-center font-bold tracking-[0.2em] uppercase text-sm transition-all active:scale-[0.98] shadow-lg shadow-[#0d7a6b]/30"
+                    class="block w-full py-3.5 rounded-full text-white text-center font-bold tracking-[0.2em] uppercase text-sm border border-black bg-[linear-gradient(180deg,#005143_0%,#07B1B1_100%),linear-gradient(180deg,rgba(0,43,45,0.53)_0%,rgba(7,177,163,0)_100%)] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),0_4px_10px_rgba(0,0,0,0.25)] hover:brightness-110 active:scale-[0.98] transition-all"
                 >
                     Play
                 </Link>
@@ -60,7 +60,7 @@
 <script setup>
 import { ref } from "vue";
 import { Link } from "@inertiajs/vue3";
-import HowToPlayModal from "./Components/HowToPlayModal.vue";
+import HowToPlayModal from "@/Components/HowToPlayModal.vue";
 import logoImage from "/public/images/logo.png";
 
 const showModal = ref(false);

@@ -1,31 +1,34 @@
 <template>
     <Teleport to="body">
         <div
-            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+            class="fixed inset-0 flex items-center justify-center z-50 px-4 bg-white/10 backdrop-blur-md"
             @click.self="$emit('close')"
         >
             <div
-                class="bg-[#f0ede4] rounded-2xl border-4 border-[#1a3a4a] w-full max-w-md p-8 relative shadow-2xl"
+                class="bg-[#f0ede4] rounded-2xl border-2 border-[#1a3a4a] w-full max-w-md p-8 relative shadow-2xl"
             >
-                <button
-                    @click="$emit('close')"
-                    class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#1a3a4a] text-[#1a3a4a] hover:bg-[#1a3a4a] hover:text-white transition-colors font-bold text-sm"
-                >
-                    ✕
-                </button>
-                <div class="text-center mb-6">
+                <!-- Floating Title -->
+                <div class="absolute -top-5 left-1/2 -translate-x-1/2">
                     <div
-                        class="inline-block border-4 border-[#1a3a4a] rounded-xl px-6 py-2"
+                        class="bg-[#f0ede4] border-2 border-[#1a3a4a] rounded-xl px-6 py-2 shadow-md"
                     >
                         <h2
-                            class="text-xl font-black tracking-widest uppercase text-[#1a3a4a]"
+                            class="font-hanuman text-sm font-black tracking-widest uppercase text-[#1a3a4a]"
                         >
                             How To Play
                         </h2>
                     </div>
                 </div>
 
-                <div class="space-y-4 text-[#1a3a4a] text-sm leading relaxed">
+                <!-- Close Button aligned with title -->
+                <button
+                    @click="$emit('close')"
+                    class="absolute -top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#1a3a4a] bg-[#f0ede4] text-[#1a3a4a] hover:bg-[#1a3a4a] hover:text-white transition-colors font-bold text-sm shadow"
+                >
+                    ✕
+                </button>
+
+                <div class="font-montserrat space-y-4 text-[#1a3a4a] text-sm leading relaxed">
                     <p>
                         Guess the secret <strong>4-digit number</strong>. The
                         digits are all different.
@@ -95,13 +98,6 @@
                         </p>
                     </div>
                 </div>
-
-                <button
-                    @click="$emit('close')"
-                    class="mt-6 w-full py-3 rounded-full bg-[#1a3a4a] text-white font-bold tracking-widest uppercase text-sm hover:bg-[#0d2535] transition-colors"
-                >
-                    Got it
-                </button>
             </div>
         </div>
     </Teleport>
