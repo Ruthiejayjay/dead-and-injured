@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('room_players', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('room_id')->constrained()->cascadeOnDelete();
+            $table->string('player_name');
+            $table->string('session_id');
+            $table->string('secret_code', 4)->nullable(); 
+            $table->boolean('is_host')->default(false);
+            $table->boolean('ready')->default(false);
+            $table->integer('guesses_count')->default(0);
+            $table->timestamp('won_at')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('room_players');
+    }
+};

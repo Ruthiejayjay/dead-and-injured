@@ -14,3 +14,7 @@ Route::get('/play', function () {
 Route::get('/game/solo', function () {
     return Inertia::render('Game/Solo');
 });
+
+Route::get('/multiplayer', function () {
+    return Inertia::render('Multiplayer');
+});

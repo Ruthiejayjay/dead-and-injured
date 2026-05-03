@@ -60,25 +60,23 @@
                         New Game
                     </h3>
                 </div>
-                <p class=" font-montserrat text-xs sm:text-sm text-[#1a3a4a]/60 leading-relaxed">
+                <p
+                    class="font-montserrat text-xs sm:text-sm text-[#1a3a4a]/60 leading-relaxed"
+                >
                     Start a fresh solo game. A secret 4-digit code will be
                     generated for you to crack.
                 </p>
-                <Link
-                    href="/game/solo"
-                    class="block w-full py-3.5 rounded-full font-hanuman text-white text-center font-bold tracking-[0.2em] uppercase text-sm border border-black bg-[linear-gradient(180deg,#005143_0%,#07B1B1_100%),linear-gradient(180deg,rgba(0,43,45,0.53)_0%,rgba(7,177,163,0)_100%)] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),0_4px_10px_rgba(0,0,0,0.25)] hover:brightness-110 active:scale-[0.98] transition-all"
-                >
+                <PrimaryButton
+                    href="/game/solo"                >
                     Start
-                </Link>
+                </PrimaryButton>
             </div>
 
             <!-- Multiplayer -->
-            <div
-                class="bg-[#f0ede4] rounded-2xl border-2 border-[#8b1a2f]/30 p-8 space-y-4 opacity-50"
-            >
+            <GameCard border-class="border-[#8b1a2f]">
                 <div class="flex items-center gap-3 mb-2">
                     <div
-                        class="w-10 h-10 rounded-full bg-[#8b1a2f]/40 flex items-center justify-center flex-shrink-0"
+                        class="w-10 h-10 rounded-full bg-[#8b1a2f] flex items-center justify-center flex-shrink-0"
                     >
                         <svg
                             class="w-5 h-5 text-white"
@@ -94,23 +92,22 @@
                             />
                         </svg>
                     </div>
-                    <div>
-                        <h3
-                            class="font-hanuman text-lg font-black tracking-wider uppercase text-[#1a3a4a]"
-                        >
-                            Multiplayer
-                        </h3>
-                        <span
-                            class="text-xs font-bold tracking-widest uppercase text-[#8b1a2f]/70"
-                            >Coming soon</span
-                        >
-                    </div>
+                    <h3
+                        class="text-lg font-black tracking-wider uppercase text-[#1a3a4a]"
+                    >
+                        Multiplayer
+                    </h3>
                 </div>
                 <p class="text-sm text-[#1a3a4a]/60 leading-relaxed">
-                    Challenge a friend online. Set codes for each other and race
-                    to crack them first.
+                    Challenge a friend online. Pick from Duel, Race, or Grand
+                    Prix modes.
                 </p>
-            </div>
+                <PrimaryButton
+                    href="/multiplayer" variant="purple"
+                >
+                    Play
+                </PrimaryButton>
+            </GameCard>
 
             <!-- Join Game -->
             <div
@@ -169,6 +166,8 @@
 <script setup>
 import { ref } from "vue";
 import { Link, router } from "@inertiajs/vue3";
+import GameCard from "../Components/GameCard.vue";
+import PrimaryButton from "../Components/PrimaryButton.vue";
 
 const gameCode = ref("");
 
