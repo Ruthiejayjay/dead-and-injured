@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GuessMade;
+use App\Events\PlayerJoined;
+use App\Events\PlayerReady;
 use App\Models\Room;
 use App\Models\RoomPlayer;
 use Illuminate\Http\Request;
@@ -65,6 +68,8 @@ class DuelController extends Controller
             'session_id' => session()->getId(),
             'is_host' => false,
         ]);
+
+        broadcast(new PlayerJoined($room, $player))->toOthers();
 
         session([
             'room_code' => $room->code,
@@ -134,6 +139,8 @@ class DuelController extends Controller
             'ready' => true,
         ]);
 
+        broadcast(new PlayerReady($room, $player))->toOthers();
+
         if ($room->bothReady()) {
             $room->update([
                 'status' => 'playing',
@@ -185,6 +192,8 @@ class DuelController extends Controller
         $won = $dead === 4;
 
         $player->increment('guesses_count');
+
+        broadcast(new GuessMade($room, $player, $player->guesses_count))->toOthers();
 
         if ($won) {
             $player->update(['won_at' => now()]);
