@@ -40,6 +40,8 @@ class GameFinished
             'winner_id' => $this->winner->id,
             'winner_name' => $this->winner->player_name,
             'guesses_count' => $this->winner->guesses_count,
+            'loser_name' => $this->room->players
+                ->firstWhere('id', '!=', $this->winner->id)?->player_name,
         ];
     }
 }

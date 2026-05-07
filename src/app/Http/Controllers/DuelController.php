@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GameFinished;
+use App\Events\GameStarted;
 use App\Events\GuessMade;
 use App\Events\PlayerJoined;
 use App\Events\PlayerReady;
@@ -69,12 +71,14 @@ class DuelController extends Controller
             'is_host' => false,
         ]);
 
-        broadcast(new PlayerJoined($room, $player))->toOthers();
-
         session([
             'room_code' => $room->code,
             'player_id' => $player->id,
         ]);
+
+        broadcast(new PlayerJoined($room, $player))->toOthers();
+
+        $room->update(['status' => 'setting_codes']);
 
         return redirect()->route('duel.room', $room->code);
     }
@@ -141,14 +145,18 @@ class DuelController extends Controller
 
         broadcast(new PlayerReady($room, $player))->toOthers();
 
+        $room->refresh();
+
         if ($room->bothReady()) {
             $room->update([
                 'status' => 'playing',
                 'started_at' => now(),
             ]);
+            broadcast(new GameStarted($room));
         }
 
-        return back();
+
+        return response()->json(['ready' => true]);
     }
 
     public function guess(Request $request, string $code)
@@ -198,6 +206,7 @@ class DuelController extends Controller
         if ($won) {
             $player->update(['won_at' => now()]);
             $room->update(['status' => 'finished', 'finished_at' => now()]);
+            broadcast(new GameFinished($room, $player));
         }
 
         return response()->json([

@@ -42,6 +42,7 @@ class PlayerJoined
                 'name' => $this->player->player_name,
                 'ready' => $this->player->ready,
             ],
+            'room_status' => 'setting_codes'
         ];
     }
 }
