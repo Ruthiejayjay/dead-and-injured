@@ -1,7 +1,12 @@
+import './echo.js';
 import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
+import { ZiggyVue } from "ziggy-js";
 import "../css/app.css";
+import axios from "axios";
 
+window.axios = axios;
+window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
 createInertiaApp({
     resolve: (name) => {
@@ -11,6 +16,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(ZiggyVue)
             .mount(el);
     },
 });

@@ -54,6 +54,24 @@ services:
     ports:
       - "5173:5173"
 
+  reverb:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: dai_reverb
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080 --debug
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./src:/var/www
+      - ./docker/app/php.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - dai_network
+    depends_on:
+      - db
+
 networks:
   dai_network:
     driver: bridge

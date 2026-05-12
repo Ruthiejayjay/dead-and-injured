@@ -6,6 +6,7 @@
     <title>Dead & Injured</title>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     @inertiaHead
+    @routes
 </head>
 <body>
     @inertia
