@@ -11,8 +11,14 @@
                     {{ opponent.name }}
                 </p>
             </div>
-            <TimerDisplay :elapsed-ms="elapsedMs" />
+            <div class="flex space-x-2">
+                <TimerDisplay :elapsed-ms="elapsedMs" />
+                <PauseButton :paused="paused" @click="$emit('toggle-pause')" />
+            </div>
         </div>
+
+        <!-- Pause overlay -->
+        <PauseOverlay v-if="paused" @resume="$emit('toggle-pause')" />
 
         <!-- Opponent progress -->
         <GameCard border-class="border-[#8b1a2f]/30">
@@ -41,13 +47,14 @@
                 inputmode="numeric"
                 maxlength="4"
                 placeholder="Enter 4 digits..."
+                :disabled="paused"
                 @keyup.enter="submit"
                 @input="sanitize"
-                class="flex-1 py-4 px-5 rounded-xl border-2 border-[#1a3a4a]/20 bg-white text-[#1a3a4a] font-mono font-bold text-lg tracking-[0.3em] focus:outline-none focus:border-[#0d7a6b] transition-colors placeholder:tracking-normal placeholder:font-normal placeholder:text-[#1a3a4a]/30"
+                class="flex-1 py-4 px-5 rounded-xl border-2 border-[#1a3a4a]/20 bg-white text-[#1a3a4a] font-mono font-bold text-lg tracking-[0.3em] focus:outline-none focus:border-[#0d7a6b] transition-colors placeholder:tracking-normal placeholder:font-normal placeholder:text-[#1a3a4a]/30 disabled:opacity-50"
             />
             <button
                 @click="submit"
-                :disabled="currentGuess.length !== 4 || submitting"
+                :disabled="currentGuess.length !== 4 || submitting || paused"
                 class="px-5 rounded-xl bg-[#1a3a4a] hover:bg-[#0d2535] disabled:opacity-30 disabled:cursor-not-allowed text-white transition-all active:scale-[0.97]"
             >
                 <svg
@@ -115,6 +122,8 @@ import { ref, onMounted } from "vue";
 import TimerDisplay from "@/Components/TimerDisplay.vue";
 import GameCard from "@/Components/GameCard.vue";
 import HistoryEntry from "@/Components/HistoryEntry.vue";
+import PauseButton from "@/Components/PauseButton.vue";
+import PauseOverlay from "@/Components/PauseOverlay.vue";
 
 const props = defineProps({
     opponent: { type: Object, required: true },
@@ -122,9 +131,10 @@ const props = defineProps({
     opponentGuesses: { type: Number, default: 0 },
     history: { type: Array, default: () => [] },
     submitting: { type: Boolean, default: false },
+    paused: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["guess"]);
+const emit = defineEmits(["guess", "toggle-pause"]);
 
 const currentGuess = ref("");
 const error = ref("");
@@ -148,7 +158,8 @@ function sanitize() {
 }
 
 function submit() {
-    if (currentGuess.value.length !== 4 || props.submitting) return;
+    if (currentGuess.value.length !== 4 || props.submitting || props.paused)
+        return;
     emit("guess", currentGuess.value);
     currentGuess.value = "";
 }

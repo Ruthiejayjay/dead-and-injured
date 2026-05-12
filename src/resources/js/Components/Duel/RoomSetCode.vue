@@ -21,7 +21,15 @@
             <!-- Players ready status -->
             <div class="space-y-3 mb-6">
                 <PlayerReadyRow :player="player" is-you />
-                <PlayerReadyRow :player="opponent" />
+                <PlayerReadyRow v-if="opponent" :player="opponent" />
+                <div v-else class="flex items-center gap-2">
+                    <div
+                        class="w-2 h-2 rounded-full bg-[#1a3a4a]/20 animate-pulse"
+                    ></div>
+                    <span class="text-sm font-bold text-[#1a3a4a]/40"
+                        >Waiting for opponent...</span
+                    >
+                </div>
             </div>
 
             <!-- Code input -->
@@ -72,7 +80,7 @@ import PlayerReadyRow from "@/Components/Duel/PlayerReadyRow.vue";
 
 const props = defineProps({
     player: { type: Object, required: true },
-    opponent: { type: Object, required: true },
+    opponent: { type: Object, default: null },
 });
 
 const emit = defineEmits(["submit"]);

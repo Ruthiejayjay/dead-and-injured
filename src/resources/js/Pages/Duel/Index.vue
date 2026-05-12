@@ -47,16 +47,9 @@
                     </PrimaryButton>
                 </div>
             </GameCard>
-            <div class="flex items-center gap-4">
-                <div class="flex-1 h-px bg-[#1a3a4a]/15"></div>
-                <span
-                    class="text-xs font-bold tracking-widest uppercase text-[#1a3a4a]/40"
-                    >or</span
-                >
-                <div class="flex-1 h-px bg-[#1a3a4a]/15"></div>
-            </div>
+
             <!-- Join Room -->
-            <GameCard>
+            <!-- <GameCard>
                 <h3
                     class="text-lg font-black tracking-wider uppercase text-[#1a3a4a] mb-4"
                 >
@@ -103,7 +96,7 @@
                         {{ joinForm.processing ? "Joining..." : "Join Room" }}
                     </PrimaryButton>
                 </div>
-            </GameCard>
+            </GameCard> -->
         </div>
     </div>
 </template>

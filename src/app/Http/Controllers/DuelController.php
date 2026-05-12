@@ -50,8 +50,8 @@ class DuelController extends Controller
     public function join(Request $request)
     {
         $request->validate([
-            'player_name' => 'required|string|min:2|max:20',
-            'code' => 'required|string|size:6',
+            'player_name' => 'required|string|max:20',
+            'code' => 'required|string|size:4',
         ]);
 
         $room = Room::where('code', $request->code)->firstOrFail();
@@ -76,9 +76,9 @@ class DuelController extends Controller
             'player_id' => $player->id,
         ]);
 
-        broadcast(new PlayerJoined($room, $player))->toOthers();
-
         $room->update(['status' => 'setting_codes']);
+
+        broadcast(new PlayerJoined($room, $player))->toOthers();
 
         return redirect()->route('duel.room', $room->code);
     }
@@ -214,6 +214,28 @@ class DuelController extends Controller
             'injured' => $injured,
             'won' => $won,
             'guesses_count' => $player->guesses_count,
+        ]);
+    }
+
+    public function status(string $code)
+    {
+        $room = Room::where('code', $code)->with('players')->firstOrFail();
+        $playerId = session('player_id');
+        $currentPlayer = $room->players->firstWhere('id', $playerId);
+        $opponent = $room->players->firstWhere('id', '!=', $playerId);
+        $winner = $room->players->firstWhere('won_at', '!=', null);
+
+        return response()->json([
+            'status' => $room->status,
+            'player_ready' => $currentPlayer?->ready,
+            'winner_id' => $winner?->id,
+            'winner_name' => $winner?->player_name,
+            'winner_guesses' => $winner?->guesses_count,
+            'opponent' => $opponent ? [
+                'id' => $opponent->id,
+                'name' => $opponent->player_name,
+                'ready' => $opponent->ready,
+            ] : null,
         ]);
     }
 }

@@ -52,7 +52,7 @@ class Room extends Model
     public static function generateCode(): string
     {
         do {
-            $code = str_pad(random_int(0, 999999), 4, '0', STR_PAD_LEFT);
+            $code = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
         } while (self::where('code', $code)->exists());
 
         return $code;

@@ -27,4 +27,5 @@ Route::controller(DuelController::class)->prefix('duel')->name('duel.')->group(f
     Route::get('/room/{code}', 'room')->name('room');
     Route::post('/room/{code}/set-code', 'setCode')->name('set-code');
     Route::post('/room/{code}/guess', 'guess')->name('guess');
+    Route::get('/duel/room/{code}/status', 'status')->name('status');
 });
