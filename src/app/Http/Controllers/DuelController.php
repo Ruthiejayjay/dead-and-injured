@@ -231,6 +231,7 @@ class DuelController extends Controller
             'winner_id' => $winner?->id,
             'winner_name' => $winner?->player_name,
             'winner_guesses' => $winner?->guesses_count,
+            'opponent_guesses' => $opponent?->guesses_count,
             'opponent' => $opponent ? [
                 'id' => $opponent->id,
                 'name' => $opponent->player_name,

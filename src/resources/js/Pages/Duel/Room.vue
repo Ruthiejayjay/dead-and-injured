@@ -73,7 +73,8 @@ let channel = null;
 let pollInterval = null;
 
 function startTimer() {
-    const start = Date.now();
+    clearInterval(timerInterval);
+    const start = Date.now() - elapsedMs.value;
     timerInterval = setInterval(
         () => (elapsedMs.value = Date.now() - start),
         10,
@@ -95,6 +96,7 @@ function togglePause() {
 }
 
 function startPolling() {
+    clearInterval(pollInterval);
     pollInterval = setInterval(async () => {
         if (
             room.value.status !== "waiting" &&
@@ -108,6 +110,12 @@ function startPolling() {
             const { data } = await axios.get(
                 route("duel.status", room.value.code),
             );
+
+            // ← add it here
+            if (data.opponent_guesses !== undefined) {
+                opponentGuesses.value = data.opponent_guesses;
+            }
+
             if (data.status !== room.value.status) {
                 room.value.status = data.status;
                 if (data.opponent) opponent.value = data.opponent;
@@ -169,7 +177,10 @@ onMounted(() => {
     ) {
         startPolling();
     }
-    if (room.value.status === "playing") startTimer();
+    if (room.value.status === "playing") {
+        startTimer();
+        startPolling();
+    }
 
     channel = window.Echo.channel(`room.${room.value.code}`);
 
@@ -206,8 +217,6 @@ onMounted(() => {
             winner_guesses: e.winner_guesses,
         };
     });
-
-    if (room.value.status === "playing") startTimer();
 });
 
 onUnmounted(() => {
