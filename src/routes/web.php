@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\DuelController;
+use App\Http\Controllers\JoinController;
+use App\Http\Controllers\RaceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,3 +31,14 @@ Route::controller(DuelController::class)->prefix('duel')->name('duel.')->group(f
     Route::post('/room/{code}/guess', 'guess')->name('guess');
     Route::get('/duel/room/{code}/status', 'status')->name('status');
 });
+
+Route::controller(RaceController::class)->prefix('race')->name('race.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/create', 'create')->name('create');
+    Route::post('/join', 'join')->name('join');
+    Route::get('/room/{code}', 'room')->name('room');
+    Route::post('/room/{code}/guess', 'guess')->name('guess');
+    Route::get('/room/{code}/status', 'status')->name('status');
+});
+
+Route::post('/join', [JoinController::class, 'join'])->name('join');

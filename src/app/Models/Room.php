@@ -13,6 +13,8 @@ class Room extends Model
 
     protected $fillable = [
         'code',
+        'mode',
+        'secret_code',
         'status',
         'started_at',
         'finished_at',
