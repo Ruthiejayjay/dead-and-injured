@@ -47,7 +47,7 @@
             </GameCard>
 
             <!-- Race Mode -->
-        <GameCard>
+            <GameCard>
                 <div class="flex items-center gap-3 mb-2">
                     <div
                         class="w-10 h-10 flex items-center justify-center flex-shrink-0 bg-[#dce9f0] rounded-full"
@@ -64,12 +64,14 @@
                         >
                             Race Mode
                         </h3>
-                        <p class="text-xs text-[#1a3a4a]/50">Speed competition</p>
+                        <p class="text-xs text-[#1a3a4a]/50">
+                            Speed competition
+                        </p>
                     </div>
                 </div>
                 <p class="text-sm text-[#1a3a4a]/60 leading-relaxed">
-                    Head - to - head. You each set a secret and try to break the
-                    other’s code first.
+                    Both players get the same secret code. First one to crack it
+                    wins.
                 </p>
                 <PrimaryButton href="/race">Play</PrimaryButton>
             </GameCard>

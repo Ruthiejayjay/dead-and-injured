@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\JoinRoomRequest;
 use App\Models\Room;
 use Illuminate\Http\Request;
 
 class JoinController extends Controller
 {
-    public function join(Request $request)
+    public function join(JoinRoomRequest $request)
     {
-        $request->validate([
-            'player_name' => 'required|string|max:20',
-            'code' => 'required|string|size:4',
-        ]);
-
         $room = Room::where('code', $request->code)->first();
 
         if (!$room) {
