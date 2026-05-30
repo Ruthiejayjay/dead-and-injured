@@ -50,11 +50,6 @@ class Room extends Model
         return $this->hasOne(RoomPlayer::class)->where('is_host', false);
     }
 
-    public function isFull(): bool
-    {
-        return $this->players()->count() >= 2;
-    }
-
     public function bothReady(): bool
     {
         return $this->players()->count() === 2
@@ -68,5 +63,22 @@ class Room extends Model
         } while (self::where('code', $code)->exists());
 
         return $code;
+    }
+
+    public function grandPrixRounds(): HasMany
+    {
+        return $this->hasMany(GrandPrixRound::class);
+    }
+
+    public function currentRound()
+    {
+        return $this->grandPrixRounds()
+            ->where('round_number', $this->current_round)
+            ->first();
+    }
+
+    public function isFull(): bool
+    {
+        return $this->players()->count() >= $this->max_players;
     }
 }
