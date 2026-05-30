@@ -1,9 +1,9 @@
 <template>
     <div
-        class="min-h-screen flex flex-col items-center justify-start bg-[#dce9f0] px-4"
+        class="min-h-screen flex flex-col items-center justify-center bg-[#dce9f0] px-4 py-8 sm:py-12 md:py-16"
     >
         <div class="w-full max-w-md space-y-6">
-            <div class="flex items-center justify-between">
+            <div class="mb-6">
                 <BackLink href="/play" />
             </div>
 
@@ -77,28 +77,33 @@
             </GameCard>
 
             <!-- Grand Prix -->
-            <ComingSoonCard>
-                <template #icon>
-                    <svg
-                        class="w-5 h-5 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+            <GameCard>
+                <div class="flex items-center gap-3 mb-2">
+                    <div
+                        class="w-10 h-10 flex items-center justify-center flex-shrink-0 bg-[#dce9f0] rounded-full"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 3l14 9-14 9V3z"
+                        <img
+                            :src="grandPrixIcon"
+                            alt="Grand Prix"
+                            class="w-6 h-6 object-contain"
                         />
-                    </svg>
-                </template>
-                <template #title>Grand Prix</template>
-                <template #description>
-                    Tournament mode with multiple rounds, time limits, and
-                    points.
-                </template>
-            </ComingSoonCard>
+                    </div>
+                    <div>
+                        <h3
+                            class="text-lg font-montserrat font-black tracking-wider uppercase text-[#1a3a4a]"
+                        >
+                            Grand Prix
+                        </h3>
+                        <p class="text-xs text-[#1a3a4a]/50">
+                            Speed competition
+                        </p>
+                    </div>
+                </div>
+                <p class="text-sm text-[#1a3a4a]/60 leading-relaxed">
+                    Tournament mode with multiple rounds, time limits, and points.
+                </p>
+                <PrimaryButton href="/grand-prix">Play</PrimaryButton>
+            </GameCard>
         </div>
     </div>
 </template>
@@ -110,4 +115,5 @@ import PrimaryButton from "../Components/PrimaryButton.vue";
 import ComingSoonCard from "../Components/ComingSoonCard.vue";
 import duelIcon from "../assets/icons/duel.svg";
 import raceIcon from "../assets/icons/race.svg";
+import grandPrixIcon from "../assets/icons/grand-prix.svg";
 </script>

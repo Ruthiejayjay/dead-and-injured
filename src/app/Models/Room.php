@@ -14,8 +14,13 @@ class Room extends Model
     protected $fillable = [
         'code',
         'mode',
-        'secret_code',
         'status',
+        'secret_code',
+        'max_players',
+        'total_rounds',
+        'max_guesses',
+        'time_limit',
+        'current_round',
         'started_at',
         'finished_at',
     ];
@@ -23,6 +28,11 @@ class Room extends Model
     protected $casts = [
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
+        'max_players' => 'integer',
+        'total_rounds' => 'integer',
+        'max_guesses' => 'integer',
+        'time_limit' => 'integer',
+        'current_round' => 'integer',
     ];
 
     public function players(): HasMany
