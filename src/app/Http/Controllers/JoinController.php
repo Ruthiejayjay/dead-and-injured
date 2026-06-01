@@ -20,6 +20,10 @@ class JoinController extends Controller
             return app(RaceController::class)->join($request);
         }
 
+        if ($room->mode === 'grand_prix') {
+            return app(GrandPrixController::class)->join($request);
+        }
+
         return app(DuelController::class)->join($request);
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\DuelController;
 use App\Http\Controllers\JoinController;
 use App\Http\Controllers\RaceController;
+use App\Http\Controllers\GrandPrixController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -42,3 +43,14 @@ Route::controller(RaceController::class)->prefix('race')->name('race.')->group(f
 });
 
 Route::post('/join', [JoinController::class, 'join'])->name('join');
+
+Route::controller(GrandPrixController::class)->prefix('grand-prix')->name('grand-prix.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/create', 'create')->name('create');
+    Route::post('/join', 'join')->name('join');
+    Route::get('/room/{code}', 'room')->name('room');
+    Route::post('/room/{code}/start', 'start')->name('start');
+    Route::post('/room/{code}/guess', 'guess')->name('guess');
+    Route::post('/room/{code}/finish-round', 'finishRound')->name('finish-round');
+    Route::get('/room/{code}/status', 'status')->name('status');
+});
