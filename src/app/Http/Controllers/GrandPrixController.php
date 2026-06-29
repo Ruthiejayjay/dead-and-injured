@@ -12,6 +12,7 @@ use App\Models\GrandPrixRoundPlayer;
 use App\Models\Room;
 use App\Models\RoomPlayer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class GrandPrixController extends Controller
@@ -57,7 +58,7 @@ class GrandPrixController extends Controller
 
     public function join(Request $request)
     {
-        $room = Room::where('code', $request->room_code)
+        $room = Room::where('code', $request->code)
             ->where('mode', 'grand_prix')
             ->firstOrFail();
 
@@ -198,11 +199,16 @@ class GrandPrixController extends Controller
             }
         }
         $roundPlayer->increment('guesses_used');
+        $roundPlayer->refresh();
+
         $solved = $dead === 4;
         $maxGuessesReached = $roundPlayer->guesses_used >= $room->max_guesses;
 
         if ($solved) {
-            $secondsTaken = (int) now()->diffInSeconds($round->started_at);
+            $secondsTaken = min(
+                (int) abs(now()->diffInSeconds($round->started_at)),
+                $room->time_limit
+            );
             $score = GrandPrixRoundPlayer::calculateScore(
                 true,
                 $roundPlayer->guesses_used,
@@ -217,6 +223,10 @@ class GrandPrixController extends Controller
                 'solved_at' => now(),
             ]);
             $player->increment('total_score', $score);
+            $round->refresh();
+            if ($round->allPlayersFinished()) {
+                $this->endRound($room, $round);
+            }
         } elseif ($maxGuessesReached) {
             $roundPlayer->update([
                 'solved' => false,
@@ -269,16 +279,35 @@ class GrandPrixController extends Controller
 
         $round = $room->currentRound();
 
+        $leaderboard = null;
+        if ($round && $round->status === 'finished') {
+            $leaderboard = [
+                'round_number' => $round->round_number,
+                'total_rounds' => $room->total_rounds,
+                'secret_code' => $round->secret_code,
+                'leaderboard' => $this->buildLeaderboard($room, $round),
+                'is_last_round' => $round->round_number >= $room->total_rounds,
+            ];
+        }
+
+        $finalStandings = null;
+        if ($room->status === 'finished') {
+            $finalStandings = $this->buildFinalStandings($room);
+        }
+
         return response()->json([
             'status' => $room->status,
             'current_round' => $room->current_round,
+            'round_status' => $round?->status,
+            'round_started_at' => $round?->started_at?->toISOString(),
+            'leaderboard' => $leaderboard,
+            'final_standings' => $finalStandings,
             'players' => $room->players->map(fn($p) => [
                 'id' => $p->id,
                 'name' => $p->player_name,
+                'is_host' => $p->is_host,
                 'total_score' => $p->total_score,
             ]),
-            'round_status' => $round?->status,
-            'round_started_at' => $round?->started_at,
         ]);
     }
 
@@ -305,21 +334,31 @@ class GrandPrixController extends Controller
     {
         $round->update(['status' => 'finished', 'finished_at' => now()]);
 
-        // Mark any players who didn't finish as having 0 score
         $room->players->each(function ($player) use ($round, $room) {
-            GrandPrixRoundPlayer::firstOrCreate(
-                ['round_id' => $round->id, 'player_id' => $player->id],
-                [
+            $existing = GrandPrixRoundPlayer::where('round_id', $round->id)
+                ->where('player_id', $player->id)
+                ->first();
+
+            if (!$existing) {
+                // Player never guessed
+                GrandPrixRoundPlayer::create([
+                    'round_id' => $round->id,
+                    'player_id' => $player->id,
                     'guesses_used' => 0,
                     'solved' => false,
                     'seconds_taken' => $room->time_limit,
                     'score' => 0,
-                ]
-            );
+                ]);
+            } elseif (!$existing->solved && $existing->seconds_taken === null) {
+                // Player guessed but didn't solve and time ran out
+                $existing->update([
+                    'seconds_taken' => $room->time_limit,
+                    'score' => 0,
+                ]);
+            }
         });
 
         $leaderboard = $this->buildLeaderboard($room, $round);
-
         $isLastRound = $round->round_number >= $room->total_rounds;
 
         broadcast(new RoundFinished($room, $round, $leaderboard));
@@ -333,10 +372,10 @@ class GrandPrixController extends Controller
 
     private function buildLeaderboard(Room $room, GrandPrixRound $round): array
     {
+        $round->load('roundPlayers.player');
         return $room->players->map(function ($player) use ($round) {
-            $roundPlayer = $round->roundPlayers()
-                ->where('player_id', $player->id)
-                ->first();
+            $roundPlayer = $round->roundPlayers
+                ->firstWhere('player_id', $player->id);
 
             return [
                 'player_id' => $player->id,

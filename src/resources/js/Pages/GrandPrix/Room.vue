@@ -136,7 +136,11 @@
 
             <!-- Playing -->
             <RoundPlaying
-                v-else-if="room.status === 'playing' && !showLeaderboard"
+                v-else-if="
+                    room.status === 'playing' &&
+                    !showLeaderboard &&
+                    roundStartedAt
+                "
                 :current-round="room.current_round"
                 :total-rounds="room.total_rounds"
                 :time-limit="room.time_limit"
@@ -170,6 +174,16 @@
                 :standings="finalStandings"
                 :player-id="player.id"
             />
+
+            <div
+                v-else-if="room.status === 'playing' && !roundStartedAt"
+                class="flex flex-col items-center justify-center py-20 gap-3"
+            >
+                <div
+                    class="w-8 h-8 rounded-full border-2 border-[#0d7a6b]/40 border-t-[#0d7a6b] animate-spin"
+                ></div>
+                <p class="text-sm text-[#1a3a4a]/50">Starting round...</p>
+            </div>
         </div>
     </div>
 </template>
@@ -239,6 +253,7 @@ async function submitGuess(guess) {
             route("grand-prix.guess", room.value.code),
             { guess },
         );
+        console.log("guess response:", data);
         history.value.unshift({
             guess,
             dead: data.dead,
@@ -261,12 +276,75 @@ async function onTimeExpired() {
     if (solved.value || maxGuessesReached.value) return;
     maxGuessesReached.value = true;
 
-    // Host triggers round end
-    if (player.value.is_host) {
-        try {
-            await axios.post(route("grand-prix.finish-round", room.value.code));
-        } catch (e) {}
+    try {
+        await axios.post(route("grand-prix.finish-round", room.value.code));
+    } catch (e) {
     }
+
+    let attempts = 0;
+    const interval = setInterval(async () => {
+        attempts++;
+        try {
+            const { data } = await axios.get(
+                route("grand-prix.status", room.value.code),
+            );
+
+            if (data.players) players.value = data.players;
+
+            if (
+                data.leaderboard &&
+                data.last_finished_round &&
+                !showLeaderboard.value &&
+                !tournamentFinished.value
+            ) {
+                showLeaderboard.value = true;
+                currentLeaderboard.value = data.leaderboard;
+                clearInterval(interval);
+                return;
+            }
+
+            if (
+                data.status === "finished" &&
+                data.final_standings &&
+                !tournamentFinished.value
+            ) {
+                tournamentFinished.value = true;
+                finalStandings.value = data.final_standings;
+                clearInterval(interval);
+                return;
+            }
+        } catch (e) {}
+
+        if (attempts >= 10) clearInterval(interval);
+    }, 1000);
+}
+
+async function checkForLeaderboard() {
+    let attempts = 0;
+    const interval = setInterval(async () => {
+        attempts++;
+        try {
+            const { data } = await axios.get(
+                route("grand-prix.status", room.value.code),
+            );
+            if (
+                data.leaderboard &&
+                data.last_finished_round &&
+                !showLeaderboard.value &&
+                !tournamentFinished.value
+            ) {
+                showLeaderboard.value = true;
+                currentLeaderboard.value = data.leaderboard;
+                clearInterval(interval);
+            }
+            if (data.status === "finished" && data.final_standings) {
+                tournamentFinished.value = true;
+                finalStandings.value = data.final_standings;
+                clearInterval(interval);
+            }
+        } catch (e) {}
+        if (attempts > 10) clearInterval(interval);
+    }, 2000);
 }
 
 function resetRoundState() {
@@ -276,6 +354,7 @@ function resetRoundState() {
     roundScore.value = 0;
     history.value = [];
     showLeaderboard.value = false;
+    roundStartedAt.value = null;
 }
 
 function startPolling() {
@@ -289,15 +368,54 @@ function startPolling() {
             const { data } = await axios.get(
                 route("grand-prix.status", room.value.code),
             );
+
             if (data.players) players.value = data.players;
-            if (data.status !== room.value.status) {
-                room.value.status = data.status;
-                if (data.status === "playing") {
-                    starting.value = false;
+
+            // New round detected via polling
+            if (
+                data.status === "playing" &&
+                data.round_started_at &&
+                (data.current_round !== room.value.current_round ||
+                    showLeaderboard.value ||
+                    !roundStartedAt.value)
+            ) {
+                // Only reset if it's actually a NEW round, not same round
+                if (
+                    data.current_round !== room.value.current_round ||
+                    !roundStartedAt.value
+                ) {
+                    resetRoundState();
+                } else if (showLeaderboard.value) {
+                    resetRoundState();
                 }
+                room.value.status = "playing";
+                room.value.current_round = data.current_round;
+                roundStartedAt.value = data.round_started_at;
+                starting.value = false;
+            }
+
+            // Leaderboard via polling
+            if (
+                data.round_status === "finished" &&
+                data.leaderboard &&
+                !showLeaderboard.value &&
+                !tournamentFinished.value
+            ) {
+                showLeaderboard.value = true;
+                currentLeaderboard.value = data.leaderboard;
+            }
+
+            // Tournament finished via polling
+            if (
+                data.status === "finished" &&
+                data.final_standings &&
+                !tournamentFinished.value
+            ) {
+                tournamentFinished.value = true;
+                finalStandings.value = data.final_standings;
             }
         } catch (e) {}
-    }, 3000);
+    }, 2000);
 }
 
 function stopPolling() {
@@ -319,15 +437,19 @@ onMounted(() => {
         resetRoundState();
         room.value.status = "playing";
         room.value.current_round = e.round_number;
-        roundStartedAt.value = new Date().toISOString();
+        roundStartedAt.value = e.started_at;
         starting.value = false;
     });
 
     channel.listen(".RoundFinished", (e) => {
+        currentLeaderboard.value = {
+            round_number: e.round_number,
+            total_rounds: e.total_rounds,
+            secret_code: e.secret_code,
+            leaderboard: e.leaderboard,
+            is_last_round: e.is_last_round,
+        };
         showLeaderboard.value = true;
-        currentLeaderboard.value = e;
-        if (e.is_last_round) {
-        }
     });
 
     channel.listen(".TournamentFinished", (e) => {

@@ -41,6 +41,6 @@ class GrandPrixRound extends Model
                     ->orWhereNotNull('seconds_taken');
             })->count();
 
-        return $finishedPlayers >= $totalPlayers;
+        return $totalPlayers > 0 && $finishedPlayers >= $totalPlayers;
     }
 }

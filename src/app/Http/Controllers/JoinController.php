@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\JoinRoomRequest;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use App\Http\Controllers\RaceController;
+use App\Http\Controllers\GrandPrixController;
+use App\Http\Controllers\DuelController;
 
 class JoinController extends Controller
 {

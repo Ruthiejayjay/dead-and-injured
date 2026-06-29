@@ -41,6 +41,7 @@ class RoundStarted
             'total_rounds' => $this->room->total_rounds,
             'time_limit' => $this->room->time_limit,
             'max_guesses' => $this->room->max_guesses,
+            'started_at' => $this->round->started_at->toISOString(),
         ];
     }
 }
