@@ -13,7 +13,14 @@ class Room extends Model
 
     protected $fillable = [
         'code',
+        'mode',
         'status',
+        'secret_code',
+        'max_players',
+        'total_rounds',
+        'max_guesses',
+        'time_limit',
+        'current_round',
         'started_at',
         'finished_at',
     ];
@@ -21,6 +28,11 @@ class Room extends Model
     protected $casts = [
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
+        'max_players' => 'integer',
+        'total_rounds' => 'integer',
+        'max_guesses' => 'integer',
+        'time_limit' => 'integer',
+        'current_round' => 'integer',
     ];
 
     public function players(): HasMany
@@ -38,11 +50,6 @@ class Room extends Model
         return $this->hasOne(RoomPlayer::class)->where('is_host', false);
     }
 
-    public function isFull(): bool
-    {
-        return $this->players()->count() >= 2;
-    }
-
     public function bothReady(): bool
     {
         return $this->players()->count() === 2
@@ -56,5 +63,22 @@ class Room extends Model
         } while (self::where('code', $code)->exists());
 
         return $code;
+    }
+
+    public function grandPrixRounds(): HasMany
+    {
+        return $this->hasMany(GrandPrixRound::class);
+    }
+
+    public function currentRound()
+    {
+        return $this->grandPrixRounds()
+            ->where('round_number', $this->current_round)
+            ->first();
+    }
+
+    public function isFull(): bool
+    {
+        return $this->players()->count() >= $this->max_players;
     }
 }

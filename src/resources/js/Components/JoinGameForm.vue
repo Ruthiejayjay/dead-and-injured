@@ -78,6 +78,6 @@ const form = useForm({ player_name: "", name: "", code: "" });
 
 function join() {
     form.player_name = form.name;
-    form.post(route("duel.join"));
+    form.post(route("join"));
 }
 </script>

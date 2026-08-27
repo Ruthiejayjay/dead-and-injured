@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\JoinRoomRequest;
+use App\Models\Room;
+use Illuminate\Http\Request;
+use App\Http\Controllers\RaceController;
+use App\Http\Controllers\GrandPrixController;
+use App\Http\Controllers\DuelController;
+
+class JoinController extends Controller
+{
+    public function join(JoinRoomRequest $request)
+    {
+        $room = Room::where('code', $request->code)->first();
+
+        if (!$room) {
+            return back()->withErrors(['code' => 'Room not found.']);
+        }
+
+        if ($room->mode === 'race') {
+            return app(RaceController::class)->join($request);
+        }
+
+        if ($room->mode === 'grand_prix') {
+            return app(GrandPrixController::class)->join($request);
+        }
+
+        return app(DuelController::class)->join($request);
+    }
+}

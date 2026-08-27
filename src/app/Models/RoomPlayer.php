@@ -17,6 +17,7 @@ class RoomPlayer extends Model
         'is_host',
         'ready',
         'guesses_count',
+        'total_score',
         'won_at',
     ];
 

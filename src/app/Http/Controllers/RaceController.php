@@ -2,30 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateRoomRequest;
 use App\Events\GameFinished;
 use App\Events\GameStarted;
 use App\Events\GuessMade;
 use App\Events\PlayerJoined;
-use App\Events\PlayerReady;
+use App\Http\Requests\CreateRoomRequest;
 use App\Http\Requests\JoinRoomRequest;
+use Illuminate\Http\Request;
 use App\Models\Room;
 use App\Models\RoomPlayer;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class DuelController extends Controller
+class RaceController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Duel/Index');
+        return Inertia::render('Race/Index');
     }
 
     public function create(CreateRoomRequest $request)
     {
         $room = Room::create([
             'code' => Room::generateCode(),
-            'mode' => 'duel',
+            'mode' => 'race',
             'status' => 'waiting',
         ]);
 
@@ -41,14 +40,13 @@ class DuelController extends Controller
             'player_id' => $player->id,
         ]);
 
-        return redirect()->route('duel.room', $room->code);
+        return redirect()->route('race.room', $room->code);
     }
 
     public function join(JoinRoomRequest $request)
     {
-
         $room = Room::where('code', $request->code)
-            ->where('mode', 'duel')
+            ->where('mode', 'race')
             ->firstOrFail();
 
         if ($room->isFull()) {
@@ -71,16 +69,24 @@ class DuelController extends Controller
             'player_id' => $player->id,
         ]);
 
-        $room->update(['status' => 'setting_codes']);
+        $secretCode = $this->generateSecretCode();
+
+        $room->update([
+            'status' => 'playing',
+            'secret_code' => $secretCode,
+            'started_at' => now(),
+        ]);
 
         broadcast(new PlayerJoined($room, $player))->toOthers();
+        broadcast(new GameStarted($room));
 
-        return redirect()->route('duel.room', $room->code);
+        return redirect()->route('race.room', $room->code);
     }
 
     public function room(string $code)
     {
         $room = Room::where('code', $code)
+            ->where('mode', 'race')
             ->with('players')
             ->firstOrFail();
 
@@ -88,12 +94,12 @@ class DuelController extends Controller
         $player = $room->players->firstWhere('id', $playerId);
 
         if (!$player) {
-            return redirect()->route('duel.index');
+            return redirect()->route('race.index');
         }
 
         $opponent = $room->players->firstWhere('id', '!=', $playerId);
 
-        return Inertia::render('Duel/Room', [
+        return Inertia::render('Race/Room', [
             'room' => [
                 'code' => $room->code,
                 'status' => $room->status,
@@ -102,56 +108,12 @@ class DuelController extends Controller
                 'id' => $player->id,
                 'name' => $player->player_name,
                 'is_host' => $player->is_host,
-                'ready' => $player->ready,
             ],
             'opponent' => $opponent ? [
                 'id' => $opponent->id,
                 'name' => $opponent->player_name,
-                'ready' => $opponent->ready,
             ] : null,
         ]);
-    }
-
-    public function setCode(Request $request, string $code)
-    {
-        $request->validate([
-            'secret_code' => [
-                'required',
-                'string',
-                'size:4',
-                'regex:/^\d{4}$/',
-                function ($attribute, $value, $fail) {
-                    if (count(array_unique(str_split($value))) !== 4) {
-                        $fail('All 4 digits must be different.');
-                    }
-                },
-            ],
-        ]);
-
-        $room = Room::where('code', $code)->firstOrFail();
-        $player = RoomPlayer::where('id', session('player_id'))
-            ->where('room_id', $room->id)
-            ->firstOrFail();
-
-        $player->update([
-            'secret_code' => $request->secret_code,
-            'ready' => true,
-        ]);
-
-        broadcast(new PlayerReady($room, $player))->toOthers();
-
-        $room->refresh();
-
-        if ($room->bothReady()) {
-            $room->update([
-                'status' => 'playing',
-                'started_at' => now(),
-            ]);
-            broadcast(new GameStarted($room));
-        }
-
-
-        return response()->json(['ready' => true]);
     }
 
     public function guess(Request $request, string $code)
@@ -171,6 +133,7 @@ class DuelController extends Controller
         ]);
 
         $room = Room::where('code', $code)
+            ->where('mode', 'race')
             ->where('status', 'playing')
             ->firstOrFail();
 
@@ -178,8 +141,7 @@ class DuelController extends Controller
             ->where('room_id', $room->id)
             ->firstOrFail();
 
-        $opponent = $player->opponent();
-        $secret = $opponent->secret_code;
+        $secret = $room->secret_code;
         $guess = $request->guess;
 
         $dead = 0;
@@ -214,24 +176,38 @@ class DuelController extends Controller
 
     public function status(string $code)
     {
-        $room = Room::where('code', $code)->with('players')->firstOrFail();
+        $room = Room::where('code', $code)
+            ->where('mode', 'race')
+            ->with('players')
+            ->firstOrFail();
+
         $playerId = session('player_id');
-        $currentPlayer = $room->players->firstWhere('id', $playerId);
         $opponent = $room->players->firstWhere('id', '!=', $playerId);
         $winner = $room->players->firstWhere('won_at', '!=', null);
 
         return response()->json([
             'status' => $room->status,
-            'player_ready' => $currentPlayer?->ready,
+            'opponent_guesses' => $opponent?->guesses_count,
             'winner_id' => $winner?->id,
             'winner_name' => $winner?->player_name,
             'winner_guesses' => $winner?->guesses_count,
-            'opponent_guesses' => $opponent?->guesses_count,
             'opponent' => $opponent ? [
                 'id' => $opponent->id,
                 'name' => $opponent->player_name,
-                'ready' => $opponent->ready,
             ] : null,
         ]);
+    }
+
+
+    private function generateSecretCode(): string
+    {
+        $digits = [];
+        while (count($digits) < 4) {
+            $d = (string) random_int(0, 9);
+            if (!in_array($d, $digits)) {
+                $digits[] = $d;
+            }
+        }
+        return implode('', $digits);
     }
 }
