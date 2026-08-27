@@ -29,7 +29,7 @@
                     {{ standings[1].total_score }} pts
                 </p>
                 <div class="relative w-full">
-                    <img :src="podium2nd" class="w-full" alt="2nd place" />
+                    <img :src="Podium2nd" class="w-full" alt="2nd place" />
                     <div
                         class="absolute inset-0 flex flex-col items-center justify-center gap-1 pt-4"
                     >
@@ -56,7 +56,7 @@
                     {{ standings[0].total_score }} pts
                 </p>
                 <div class="relative w-full">
-                    <img :src="podium1st" class="w-full" alt="1st place" />
+                    <img :src="Podium1st" class="w-full" alt="1st place" />
                     <div
                         class="absolute inset-0 flex flex-col items-center justify-center gap-1 pt-4"
                     >
@@ -83,7 +83,7 @@
                     {{ standings[2].total_score }} pts
                 </p>
                 <div class="relative w-full">
-                    <img :src="podium3rd" class="w-full" alt="3rd place" />
+                    <img :src="Podium3rd" class="w-full" alt="3rd place" />
                     <div
                         class="absolute inset-0 flex flex-col items-center justify-center gap-1 pt-4"
                     >

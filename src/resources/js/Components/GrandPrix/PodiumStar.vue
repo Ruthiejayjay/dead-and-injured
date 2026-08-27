@@ -8,5 +8,5 @@ const props = defineProps({
     size: { type: String, default: "sm" },
 });
 
-const sizeClass = props.size === "md" ? "w-12 h-4" : "w-12 h-4";
+const sizeClass = props.size === "md" ? "w-24 h-4" : "w-24 h-4";
 </script>
